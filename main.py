@@ -1,8 +1,11 @@
-# Foundational prompt: Code to parse selection.html, extract image URLs, and save them to a local folder.
+# Foundational prompt:
+# Code to parse selection.html, extract image URLs, and save them to a local folder.
+# Add a function to save the array of image URLs to a JSON file.
 
 import os
 import requests
 from bs4 import BeautifulSoup
+import json  # Import json module
 
 # Define the local HTML file and the output directory
 html_file = 'selection.html'
@@ -39,11 +42,25 @@ for img in soup.find_all('img'):
     if src and src.startswith('https://www.wwf-climaterealism.com/sequence/sequence05/img/'):
         image_urls.append(src)
 
+# Define the JSON output file
+json_output_file = 'image_urls.json'
+
+# Function to save image URLs to a JSON file with local paths
+def save_image_urls_to_json(image_urls, json_file, output_dir):
+    local_image_urls = [os.path.join(output_dir, url.split('/')[-1]) for url in image_urls]
+    try:
+        with open(json_file, 'w') as file:
+            json.dump(local_image_urls, file, indent=4)
+        print(f"Image URLs saved to {json_file}")
+    except Exception as e:
+        print(f"Error saving image URLs to JSON file: {e}")
+
 # Debugging: Print the extracted image URLs
 if not image_urls:
     print("No image URLs found. Please check the HTML file and the URL pattern.")
 else:
     print("Extracted image URLs:", image_urls)
+    save_image_urls_to_json(image_urls, json_output_file, output_dir)  # Save image URLs to JSON file with local paths
 
 # Download and save each image
 for url in image_urls:

@@ -1,4 +1,4 @@
-# Code to parse selection.html, extract image URLs, and save them to a local folder.
+# Foundational prompt: Code to parse selection.html, extract image URLs, and save them to a local folder.
 
 import os
 import requests

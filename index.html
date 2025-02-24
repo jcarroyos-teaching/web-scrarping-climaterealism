@@ -25,14 +25,24 @@
             background-size: cover;
             background-position: center;
         }
+        #loading {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 24px;
+            color: #000;
+        }
     </style>
 </head>
 <body>
     <div id="animation-container">
         <div id="animation-frame"></div>
     </div>
+    <div id="loading">Loading...</div>
     <!-- Add content to ensure there is enough height for scrolling -->
     <div style="height: 200vh;"></div>
+    <script src="./imagesloaded.pkgd.min.js"></script>
     <script>
         // Fetch image URLs from ./image_urls.json
         fetch('./image_urls.json')
@@ -46,19 +56,31 @@
                 // Ensure scrollHeight is at least 1 to avoid division by zero
                 scrollHeight = Math.max(scrollHeight, 1);
 
-                window.addEventListener('scroll', () => {
-                    console.log('Scroll event triggered'); // Debug log
-                    const scrollTop = window.scrollY;
-                    const frameIndex = Math.min(
-                        totalFrames - 1,
-                        Math.floor((scrollTop / scrollHeight) * totalFrames)
-                    );
-                    console.log('Displaying frame:', frameIndex, imageUrls[frameIndex]); // Debug log
-                    frame.style.backgroundImage = `url(${imageUrls[frameIndex]})`;
+                // Preload images
+                const imgElements = imageUrls.map(url => {
+                    const img = new Image();
+                    img.src = url;
+                    return img;
                 });
 
-                // Trigger the scroll event initially to load the first image
-                window.dispatchEvent(new Event('scroll'));
+                imagesLoaded(imgElements, () => {
+                    console.log('All images loaded');
+                    document.getElementById('loading').style.display = 'none';
+
+                    window.addEventListener('scroll', () => {
+                        console.log('Scroll event triggered'); // Debug log
+                        const scrollTop = window.scrollY;
+                        const frameIndex = Math.min(
+                            totalFrames - 1,
+                            Math.floor((scrollTop / scrollHeight) * totalFrames)
+                        );
+                        console.log('Displaying frame:', frameIndex, imageUrls[frameIndex]); // Debug log
+                        frame.style.backgroundImage = `url(${imageUrls[frameIndex]})`;
+                    });
+
+                    // Trigger the scroll event initially to load the first image
+                    window.dispatchEvent(new Event('scroll'));
+                });
             })
             .catch(error => console.error('Error loading image URLs:', error));
     </script>

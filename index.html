@@ -11,7 +11,7 @@
             overflow-x: hidden;
         }
         #animation-container {
-            position: relative;
+            position: fixed;
             width: 100%;
             height: 100vh;
             overflow: hidden;
@@ -31,23 +31,34 @@
     <div id="animation-container">
         <div id="animation-frame"></div>
     </div>
+    <!-- Add content to ensure there is enough height for scrolling -->
+    <div style="height: 200vh;"></div>
     <script>
-        // Fetch image URLs from image_urls.json
-        fetch('image_urls.json')
+        // Fetch image URLs from ./image_urls.json
+        fetch('./image_urls.json')
             .then(response => response.json())
             .then(imageUrls => {
+                console.log('Image URLs loaded:', imageUrls); // Debug log
                 const frame = document.getElementById('animation-frame');
                 const totalFrames = imageUrls.length;
-                const scrollHeight = document.documentElement.scrollHeight - window.innerHeight;
+                let scrollHeight = document.documentElement.scrollHeight - window.innerHeight;
+
+                // Ensure scrollHeight is at least 1 to avoid division by zero
+                scrollHeight = Math.max(scrollHeight, 1);
 
                 window.addEventListener('scroll', () => {
+                    console.log('Scroll event triggered'); // Debug log
                     const scrollTop = window.scrollY;
                     const frameIndex = Math.min(
                         totalFrames - 1,
                         Math.floor((scrollTop / scrollHeight) * totalFrames)
                     );
+                    console.log('Displaying frame:', frameIndex, imageUrls[frameIndex]); // Debug log
                     frame.style.backgroundImage = `url(${imageUrls[frameIndex]})`;
                 });
+
+                // Trigger the scroll event initially to load the first image
+                window.dispatchEvent(new Event('scroll'));
             })
             .catch(error => console.error('Error loading image URLs:', error));
     </script>
